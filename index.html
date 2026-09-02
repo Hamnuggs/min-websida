@@ -2,257 +2,801 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fortnite Tactics</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<title>Tactical Advice</title>
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #0b0b16;
-            color: white;
-        }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&display=swap');
 
-        header {
-            background: linear-gradient(90deg, #6c2cff, #b000ff);
-            padding: 20px 8%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
+:root {
+    --green: #00ff66;
+    --dark-green: #00b847;
+    --black: #030504;
+    --panel: #07100a;
+}
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 25px;
-            font-weight: bold;
-        }
+body {
+    font-family: 'Orbitron', Arial, sans-serif;
+    background: var(--black);
+    color: white;
+    overflow-x: hidden;
+}
 
-        nav a:hover {
-            color: #ffd500;
-        }
+/* =========================
+   BACKGROUND
+========================= */
 
-        .hero {
-            min-height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 60px 20px;
-            background:
-                radial-gradient(circle at center, #302060 0%, #0b0b16 65%);
-        }
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -5;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(0,255,102,0.07), transparent 40%),
+        #030504;
+}
 
-        .hero h1 {
-            font-size: clamp(45px, 8vw, 80px);
-            margin-bottom: 20px;
-        }
+.grid {
+    position: fixed;
+    inset: 0;
+    z-index: -4;
+    opacity: .12;
+    background-image:
+        linear-gradient(rgba(0,255,102,.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,102,.2) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
 
-        .hero h1 span {
-            color: #a855f7;
-        }
+/* Random green glitch */
 
-        .hero p {
-            color: #c5c5d0;
-            font-size: 20px;
-            max-width: 650px;
-            margin: auto;
-            line-height: 1.6;
-        }
+.glitch {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(0,255,102,.08);
+    mix-blend-mode: screen;
+}
 
-        .button {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 15px 30px;
-            background: #a855f7;
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: 0.2s;
-        }
+.glitch.active {
+    animation: glitchFlash .25s linear;
+}
 
-        .button:hover {
-            background: #c084fc;
-            transform: translateY(-2px);
-        }
+@keyframes glitchFlash {
+    0% { opacity: 0; transform: translateX(0); }
+    15% { opacity: .8; transform: translateX(-8px); }
+    30% { opacity: .2; transform: translateX(12px); }
+    50% { opacity: .7; transform: translateX(-4px); }
+    70% { opacity: .1; transform: translateX(8px); }
+    100% { opacity: 0; transform: translateX(0); }
+}
 
-        .section {
-            padding: 70px 8%;
-        }
+/* =========================
+   NAVBAR
+========================= */
 
-        .section h2 {
-            text-align: center;
-            font-size: 36px;
-            margin-bottom: 40px;
-        }
+header {
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 7%;
+    border-bottom: 1px solid rgba(0,255,102,.2);
+    background: rgba(3,5,4,.85);
+    backdrop-filter: blur(10px);
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-            gap: 25px;
-        }
+.logo {
+    color: var(--green);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0,255,102,.6);
+}
 
-        .card {
-            background: #151523;
-            border: 1px solid #292940;
-            padding: 30px;
-            border-radius: 15px;
-            transition: 0.2s;
-        }
+.status {
+    color: #6cff9d;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: #a855f7;
-        }
+.status::before {
+    content: "●";
+    margin-right: 8px;
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green);
+}
 
-        .card .icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
+/* =========================
+   LOBBY
+========================= */
 
-        .card h3 {
-            margin-bottom: 12px;
-            font-size: 23px;
-        }
+#lobby {
+    min-height: calc(100vh - 80px);
+    padding: 70px 7%;
+}
 
-        .card p {
-            color: #aaaabd;
-            line-height: 1.6;
-        }
+.hero {
+    max-width: 1000px;
+    margin: auto;
+    text-align: center;
+}
 
-        .difficulty {
-            display: inline-block;
-            margin-top: 20px;
-            color: #ffd500;
-            font-size: 14px;
-            font-weight: bold;
-        }
+.small-title {
+    color: var(--green);
+    font-size: 12px;
+    letter-spacing: 5px;
+    margin-bottom: 20px;
+}
 
-        footer {
-            text-align: center;
-            padding: 30px;
-            background: #07070e;
-            color: #77778a;
-        }
+.hero h1 {
+    font-size: clamp(45px, 8vw, 95px);
+    letter-spacing: 6px;
+    line-height: 1;
+    color: white;
+    text-shadow:
+        0 0 10px rgba(0,255,102,.4),
+        0 0 35px rgba(0,255,102,.15);
+}
 
-        @media (max-width: 600px) {
-            nav {
-                display: none;
-            }
+.hero h1 span {
+    color: var(--green);
+}
 
-            .hero {
-                min-height: 450px;
-            }
-        }
-    </style>
+.hero p {
+    margin: 25px auto 55px;
+    max-width: 650px;
+    color: #82968a;
+    line-height: 1.8;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================
+   TACTIC CARDS
+========================= */
+
+.tactics {
+    max-width: 1100px;
+    margin: auto;
+}
+
+.section-label {
+    color: #557060;
+    font-size: 11px;
+    letter-spacing: 4px;
+    margin-bottom: 18px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.card {
+    position: relative;
+    min-height: 240px;
+    padding: 25px;
+    cursor: pointer;
+    overflow: hidden;
+
+    background: linear-gradient(
+        145deg,
+        rgba(0,255,102,.07),
+        rgba(0,0,0,.8)
+    );
+
+    border: 1px solid #173b24;
+    transition: .3s;
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    left: -100%;
+    bottom: 0;
+    background: var(--green);
+    box-shadow: 0 0 15px var(--green);
+    transition: .4s;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: var(--green);
+    box-shadow:
+        0 0 25px rgba(0,255,102,.12),
+        inset 0 0 30px rgba(0,255,102,.03);
+}
+
+.card:hover::before {
+    left: 0;
+}
+
+.card-number {
+    color: #345541;
+    font-size: 12px;
+}
+
+.icon {
+    font-size: 38px;
+    margin: 25px 0 15px;
+    filter: grayscale(1);
+}
+
+.card h2 {
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.card p {
+    font-family: Arial, sans-serif;
+    color: #72857a;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.card .enter {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: var(--green);
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+/* =========================
+   TACTIC PAGE
+========================= */
+
+#tacticPage {
+    display: none;
+    min-height: calc(100vh - 80px);
+    padding: 60px 7%;
+}
+
+.tactic-content {
+    max-width: 1100px;
+    margin: auto;
+}
+
+.back {
+    display: inline-block;
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-bottom: 40px;
+}
+
+.back:hover {
+    text-shadow: 0 0 10px var(--green);
+}
+
+.tactic-header {
+    border-left: 3px solid var(--green);
+    padding-left: 25px;
+    margin-bottom: 40px;
+}
+
+.tactic-header .tag {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: 4px;
+}
+
+.tactic-header h1 {
+    font-size: clamp(40px, 6vw, 70px);
+    margin: 12px 0;
+}
+
+.tactic-header p {
+    color: #82968a;
+    font-family: Arial, sans-serif;
+    line-height: 1.7;
+    max-width: 700px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 30px;
+}
+
+.info {
+    border: 1px solid #173b24;
+    padding: 30px;
+    background: rgba(0,255,102,.025);
+}
+
+.info h3 {
+    color: var(--green);
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+.info ul {
+    list-style: none;
+}
+
+.info li {
+    font-family: Arial, sans-serif;
+    color: #9aad9f;
+    padding: 13px 0;
+    border-bottom: 1px solid #102519;
+    line-height: 1.5;
+}
+
+.info li::before {
+    content: ">";
+    color: var(--green);
+    margin-right: 10px;
+}
+
+.video {
+    border: 1px solid #173b24;
+    background: #000;
+    aspect-ratio: 16 / 9;
+}
+
+.video iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* =========================
+   SWEEP TRANSITION
+========================= */
+
+#transition {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: -110%;
+    width: 110%;
+    height: 100%;
+    background: var(--green);
+    pointer-events: none;
+}
+
+#transition.animate {
+    animation: sweep .8s cubic-bezier(.7,0,.2,1);
+}
+
+@keyframes sweep {
+    0% {
+        left: -110%;
+    }
+
+    45% {
+        left: 0;
+    }
+
+    55% {
+        left: 0;
+    }
+
+    100% {
+        left: 110%;
+    }
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+    padding: 30px;
+    text-align: center;
+    color: #314237;
+    font-size: 9px;
+    letter-spacing: 3px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 800px) {
+
+    .cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 500px) {
+
+    header {
+        padding: 0 20px;
+    }
+
+    .status {
+        display: none;
+    }
+
+    #lobby,
+    #tacticPage {
+        padding: 45px 20px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
 
 <body>
 
-    <header>
-        <div class="logo">🎮 Fortnite Tactics</div>
+<div class="background"></div>
+<div class="grid"></div>
+<div class="glitch" id="glitch"></div>
+<div id="transition"></div>
 
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#tactics">Tactics</a>
-            <a href="#about">About</a>
-        </nav>
-    </header>
+<header>
+    <div class="logo">TACTICAL ADVICE</div>
 
-    <section class="hero" id="home">
-        <div>
-            <h1>Learn. <span>Improve.</span> Win.</h1>
+    <div class="status">
+        SYSTEM ONLINE
+    </div>
+</header>
 
-            <p>
-                Simple Fortnite tactics made for beginners.
-                Learn better positioning, building, aiming and endgame decisions.
-            </p>
 
-            <a href="#tactics" class="button">Explore Tactics</a>
+<!-- =========================
+     LOBBY
+========================= -->
+
+<main id="lobby">
+
+    <section class="hero">
+
+        <div class="small-title">
+            FORTNITE // TRAINING DATABASE
         </div>
+
+        <h1>
+            TACTICAL<br>
+            <span>ADVICE</span>
+        </h1>
+
+        <p>
+            Improve your Fortnite gameplay with simple,
+            practical tactics designed for beginners.
+            Choose a category below to begin your training.
+        </p>
+
     </section>
 
-    <section class="section" id="tactics">
-        <h2>Beginner Tactics</h2>
+
+    <section class="tactics">
+
+        <div class="section-label">
+            SELECT TRAINING MODULE
+        </div>
 
         <div class="cards">
 
-            <div class="card">
-                <div class="icon">🎯</div>
-                <h3>Aim</h3>
-
+            <div class="card" onclick="openTactic('aim')">
+                <div class="card-number">01</div>
+                <div class="icon">⌁</div>
+                <h2>AIM</h2>
                 <p>
-                    Learn how to improve your crosshair placement,
-                    tracking and shooting accuracy.
+                    Improve your accuracy, tracking and
+                    crosshair placement.
                 </p>
-
-                <div class="difficulty">BEGINNER</div>
+                <div class="enter">ENTER ></div>
             </div>
 
-            <div class="card">
-                <div class="icon">🏗️</div>
-                <h3>Building</h3>
 
+            <div class="card" onclick="openTactic('building')">
+                <div class="card-number">02</div>
+                <div class="icon">▦</div>
+                <h2>BUILDING</h2>
                 <p>
-                    Learn the basic builds you need to survive
-                    fights and create better defensive positions.
+                    Learn the essential building mechanics
+                    every beginner needs.
                 </p>
-
-                <div class="difficulty">BEGINNER</div>
+                <div class="enter">ENTER ></div>
             </div>
 
-            <div class="card">
-                <div class="icon">🧠</div>
-                <h3>Positioning</h3>
 
+            <div class="card" onclick="openTactic('positioning')">
+                <div class="card-number">03</div>
+                <div class="icon">◇</div>
+                <h2>POSITIONING</h2>
                 <p>
-                    Learn where to stand, when to rotate and
-                    how to avoid taking unnecessary fights.
+                    Learn how to use cover, terrain and
+                    smart movement.
                 </p>
-
-                <div class="difficulty">BEGINNER</div>
+                <div class="enter">ENTER ></div>
             </div>
 
-            <div class="card">
-                <div class="icon">🏆</div>
-                <h3>Endgame</h3>
 
+            <div class="card" onclick="openTactic('endgame')">
+                <div class="card-number">04</div>
+                <div class="icon">△</div>
+                <h2>ENDGAME</h2>
                 <p>
-                    Learn how to play the final zones,
-                    manage resources and make smarter decisions.
+                    Make better decisions when the final
+                    zones begin closing.
                 </p>
-
-                <div class="difficulty">BEGINNER</div>
+                <div class="enter">ENTER ></div>
             </div>
 
         </div>
+
     </section>
 
-    <section class="section" id="about">
-        <h2>Why Fortnite Tactics?</h2>
+</main>
 
-        <p style="text-align:center; max-width:700px; margin:auto; color:#aaaabd; line-height:1.7;">
-            Fortnite can be difficult when you are just starting.
-            Our goal is to make learning competitive Fortnite simple,
-            clear and fun.
-        </p>
-    </section>
 
-    <footer>
-        © 2026 Fortnite Tactics · Made for beginners
-    </footer>
+<!-- =========================
+     TACTIC PAGE
+========================= -->
+
+<section id="tacticPage">
+
+    <div class="tactic-content">
+
+        <div class="back" onclick="backToLobby()">
+            ← BACK TO LOBBY
+        </div>
+
+        <div class="tactic-header">
+
+            <div class="tag" id="tag">
+                TRAINING MODULE
+            </div>
+
+            <h1 id="title">
+                AIM
+            </h1>
+
+            <p id="description">
+                Learn the fundamentals of better aim.
+            </p>
+
+        </div>
+
+
+        <div class="info-grid">
+
+            <div class="info">
+
+                <h3>CORE ADVICE</h3>
+
+                <ul id="tips"></ul>
+
+            </div>
+
+
+            <div>
+
+                <div class="section-label">
+                    TRAINING VIDEO
+                </div>
+
+                <div class="video">
+                    <iframe
+                        id="youtube"
+                        src=""
+                        title="Fortnite training video"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<footer>
+    TACTICAL ADVICE // FORTNITE TRAINING DATABASE
+</footer>
+
+
+<script>
+
+const tactics = {
+
+    aim: {
+        title: "AIM",
+        tag: "MODULE 01 // COMBAT",
+        description:
+            "Good aim is not only about moving your mouse or stick quickly. Focus on keeping your crosshair where an opponent is likely to appear and take controlled shots.",
+
+        tips: [
+            "Keep your crosshair around head or chest level.",
+            "Practice tracking moving targets instead of only flicking.",
+            "Do not panic when an enemy gets close.",
+            "Take your time with important shotgun shots.",
+            "Practice regularly in Creative before jumping into ranked."
+        ],
+
+        video: "https://www.youtube.com/embed/23enquVZct0"
+    },
+
+
+    building: {
+        title: "BUILDING",
+        tag: "MODULE 02 // MECHANICS",
+        description:
+            "You do not need advanced edits to start winning fights. Learn a few basic defensive and offensive builds and become comfortable using them under pressure.",
+
+        tips: [
+            "Learn to build a basic 1x1 box.",
+            "Practice ramp + wall combinations.",
+            "Learn simple 90s when you are comfortable.",
+            "Build for protection instead of wasting materials.",
+            "Practice slowly before trying to build at full speed."
+        ],
+
+        video: "https://www.youtube.com/embed/HIXLPwnDUsY"
+    },
+
+
+    positioning: {
+        title: "POSITIONING",
+        tag: "MODULE 03 // GAME SENSE",
+        description:
+            "Smart positioning can win fights before they even start. Use cover, avoid unnecessary exposure and think about where your next safe position will be.",
+
+        tips: [
+            "Use natural cover whenever possible.",
+            "Avoid standing in open areas for long periods.",
+            "Think about where enemies can see you from.",
+            "Move early when you know you need to rotate.",
+            "Do not take every fight you see."
+        ],
+
+        video: "https://www.youtube.com/embed/8wgXeCoBmvg"
+    },
+
+
+    endgame: {
+        title: "ENDGAME",
+        tag: "MODULE 04 // FINAL ZONES",
+        description:
+            "The final zones are about survival, positioning and decision-making. Moving early and avoiding unnecessary fights can make your endgames much easier.",
+
+        tips: [
+            "Start planning your next rotation early.",
+            "Keep enough materials for defensive builds.",
+            "Avoid unnecessary fights when the zone is moving.",
+            "Use cover while rotating.",
+            "Only take fights that give you a clear advantage."
+        ],
+
+        video: "https://www.youtube.com/embed/23enquVZct0"
+    }
+
+};
+
+
+function openTactic(name) {
+
+    const transition = document.getElementById("transition");
+
+    transition.classList.remove("animate");
+
+    void transition.offsetWidth;
+
+    transition.classList.add("animate");
+
+
+    setTimeout(() => {
+
+        const tactic = tactics[name];
+
+        document.getElementById("lobby").style.display = "none";
+        document.getElementById("tacticPage").style.display = "block";
+
+        document.getElementById("title").textContent = tactic.title;
+        document.getElementById("tag").textContent = tactic.tag;
+        document.getElementById("description").textContent = tactic.description;
+
+        const tips = document.getElementById("tips");
+
+        tips.innerHTML = "";
+
+        tactic.tips.forEach(tip => {
+
+            const li = document.createElement("li");
+
+            li.textContent = tip;
+
+            tips.appendChild(li);
+
+        });
+
+        document.getElementById("youtube").src = tactic.video;
+
+        window.scrollTo(0, 0);
+
+    }, 400);
+
+}
+
+
+function backToLobby() {
+
+    const transition = document.getElementById("transition");
+
+    transition.classList.remove("animate");
+
+    void transition.offsetWidth;
+
+    transition.classList.add("animate");
+
+
+    setTimeout(() => {
+
+        document.getElementById("tacticPage").style.display = "none";
+        document.getElementById("lobby").style.display = "block";
+
+        document.getElementById("youtube").src = "";
+
+        window.scrollTo(0, 0);
+
+    }, 400);
+
+}
+
+
+/* RANDOM GLITCH */
+
+function randomGlitch() {
+
+    const glitch = document.getElementById("glitch");
+
+    glitch.classList.remove("active");
+
+    void glitch.offsetWidth;
+
+    glitch.classList.add("active");
+
+}
+
+
+/* Random glitch every 4-10 seconds */
+
+function scheduleGlitch() {
+
+    const delay = Math.random() * 6000 + 4000;
+
+    setTimeout(() => {
+
+        randomGlitch();
+
+        scheduleGlitch();
+
+    }, delay);
+
+}
+
+scheduleGlitch();
+
+</script>
 
 </body>
 </html>
